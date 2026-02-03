@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-02-03T18:31:00.000Z",
+  "product_name": "فستان سهرة أنيق",
+  "product_id": "1213831869",
+  "current_price": 174.0,
+  "cost_price": 120.0,
+  "competitor_lowest_price": 159.0,
+  "competitor_average_price": 168.0,
+  "suggested_price": 157.0,
+  "profit_margin_percentage": 30.8,
+  "profit_margin_amount": 37.0,
+  "strategy_used": "Undercut",
+  "reasoning": "Fashion market analysis shows opportunity to undercut H&M by 2 SAR while maintaining healthy 30.8% profit margin. This positions us competitively in the Saudi women's fashion market.",
+  "risk_level": "Low",
+  "market_position": "Competitive"
+}

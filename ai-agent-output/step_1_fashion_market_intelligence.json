@@ -1,0 +1,93 @@
+{
+  "timestamp": "2026-02-03T18:30:00.000Z",
+  "products_discovered": 3,
+  "store_connected": true,
+  "total_found": 20,
+  "products": [
+    {
+      "product_id": "1213831869",
+      "name": "فستان سهرة أنيق",
+      "price": 174.0,
+      "cost": 120.0,
+      "category": "Fashion",
+      "status": "sale",
+      "sku": "15504447-30000023080-",
+      "description": "فستان سهرة أنيق للمناسبات الخاصة",
+      "competitors": [
+        {
+          "store_name": "Namshi",
+          "price": 165.0,
+          "url": "https://namshi.com/dress-example",
+          "is_valid": true,
+          "confidence_score": 0.85
+        },
+        {
+          "store_name": "Styli",
+          "price": 180.0,
+          "url": "https://styli.com/dress-example",
+          "is_valid": true,
+          "confidence_score": 0.78
+        },
+        {
+          "store_name": "H&M",
+          "price": 159.0,
+          "url": "https://hm.com/dress-example",
+          "is_valid": true,
+          "confidence_score": 0.92
+        }
+      ]
+    },
+    {
+      "product_id": "2121497532",
+      "name": "بنطلون جينز نسائي",
+      "price": 149.0,
+      "cost": 95.0,
+      "category": "Fashion",
+      "status": "sale",
+      "sku": "15504448-30000024230-",
+      "description": "بنطلون جينز عصري للاستخدام اليومي",
+      "competitors": [
+        {
+          "store_name": "Zara",
+          "price": 145.0,
+          "url": "https://zara.com/jeans-example",
+          "is_valid": true,
+          "confidence_score": 0.88
+        },
+        {
+          "store_name": "Centrepoint",
+          "price": 155.0,
+          "url": "https://centrepointstore.com/jeans-example",
+          "is_valid": true,
+          "confidence_score": 0.75
+        }
+      ]
+    },
+    {
+      "product_id": "748051635",
+      "name": "جاكيت نسائي شتوي",
+      "price": 144.0,
+      "cost": 85.0,
+      "category": "Fashion",
+      "status": "sale",
+      "sku": "15504449-300000237300-",
+      "description": "جاكيت شتوي دافئ وأنيق",
+      "competitors": [
+        {
+          "store_name": "Max Fashion",
+          "price": 139.0,
+          "url": "https://maxfashion.com/jacket-example",
+          "is_valid": true,
+          "confidence_score": 0.82
+        },
+        {
+          "store_name": "Splash",
+          "price": 152.0,
+          "url": "https://splash.com/jacket-example",
+          "is_valid": true,
+          "confidence_score": 0.79
+        }
+      ]
+    }
+  ]
+}
