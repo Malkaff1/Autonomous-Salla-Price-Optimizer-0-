@@ -149,7 +149,7 @@ def index():
         'response_type': 'code',
         'client_id': SALLA_CLIENT_ID,
         'redirect_uri': CALLBACK_URL,
-        'scope': 'products:read products:write store:read',
+        'scope': 'offline_access',
         'state': 'oauth_state_123'
     }
     
@@ -316,7 +316,7 @@ def start_auth_flow():
     print("=" * 60)
     print(f"Client ID: {SALLA_CLIENT_ID}")
     print(f"Callback URL: {CALLBACK_URL}")
-    print(f"Scopes: products:read products:write store:read")
+    print(f"Scopes: settings.read products.read_write offline_access")
     print()
     
     # Reset status

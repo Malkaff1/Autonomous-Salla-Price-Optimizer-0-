@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
-"""Test the new Salla token"""
+"""Verify the new Salla token"""
+import os
 import requests
+from dotenv import load_dotenv
 
-# From your screenshot
-ACCESS_TOKEN = "ory_at_UgSQcD9MTFUJ7--7N7lly9mlARsQjAg01muW54q87O4.VfNDbuUXHJuu2CsgqRcP2HJFaJdwp9B3D8RsxerCUE"
+load_dotenv()
 
-print("🧪 Testing Salla Token")
+token = os.getenv("SALLA_ACCESS_TOKEN")
+
+print("🧪 Verifying Salla Token")
 print("=" * 50)
-print(f"Token: {ACCESS_TOKEN[:30]}...")
+print(f"Token: {token[:30]}...")
 print()
 
 try:
-    # Test 1: Store Info
-    print("📋 Test 1: Getting store info...")
+    # Test store info
+    print("📋 Test 1: Store Info")
     response = requests.get(
         'https://api.salla.dev/admin/v2/store/info',
-        headers={'Authorization': f'Bearer {ACCESS_TOKEN}'},
+        headers={'Authorization': f'Bearer {token}'},
         timeout=10
     )
     
@@ -25,16 +28,13 @@ try:
         data = response.json()
         store_name = data.get('data', {}).get('name', 'Unknown')
         store_id = data.get('data', {}).get('id', 'Unknown')
-        print(f"✅ SUCCESS!")
-        print(f"Store Name: {store_name}")
-        print(f"Store ID: {store_id}")
-        print()
+        print(f"✅ Store: {store_name} (ID: {store_id})")
         
-        # Test 2: Get Products
-        print("📦 Test 2: Getting products...")
+        # Test products
+        print(f"\n📦 Test 2: Products")
         products_response = requests.get(
-            'https://api.salla.dev/admin/v2/products',
-            headers={'Authorization': f'Bearer {ACCESS_TOKEN}'},
+            'https://api.salla.dev/admin/v2/products?per_page=5',
+            headers={'Authorization': f'Bearer {token}'},
             timeout=10
         )
         
@@ -46,11 +46,16 @@ try:
             print(f"✅ Found {len(products)} products")
             
             if products:
-                print("\nFirst 3 products:")
-                for i, product in enumerate(products[:3], 1):
-                    print(f"{i}. {product.get('name')} - {product.get('price')} SAR")
+                print("\nProducts:")
+                for i, product in enumerate(products, 1):
+                    print(f"{i}. {product.get('name')} - {product.get('price')} SAR (ID: {product.get('id')})")
+                
+                print(f"\n🎉 TOKEN IS WORKING!")
+                print(f"✅ Ready to run the optimizer with real data")
+            else:
+                print("⚠️  No products found in store")
         else:
-            print(f"❌ Failed: {products_response.status_code}")
+            print(f"❌ Products API failed: {products_response.status_code}")
             
     elif response.status_code == 401:
         print("❌ Token expired or invalid")
@@ -62,4 +67,3 @@ except Exception as e:
     print(f"❌ Error: {e}")
 
 print("\n" + "=" * 50)
-print("🎯 Token Test Complete")
