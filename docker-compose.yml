@@ -1,0 +1,244 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:14-alpine
+    container_name: salla-postgres
+    environment:
+      POSTGRES_DB: salla_optimizer
+      POSTGRES_USER: salla_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-salla_secure_password_2024}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U salla_user -d salla_optimizer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - salla-network
+    restart: unless-stopped
+
+  # Redis (Message Broker & Cache)
+  redis:
+    image: redis:7-alpine
+    container_name: salla-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - salla-network
+    restart: unless-stopped
+
+  # FastAPI Web Server (OAuth Handler & API)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salla-api
+    command: >
+      sh -c "
+        ./entrypoint.sh &&
+        gunicorn api.oauth_handler:app 
+        --workers 4 
+        --worker-class uvicorn.workers.UvicornWorker 
+        --bind 0.0.0.0:8000 
+        --access-logfile - 
+        --error-logfile -
+      "
+    environment:
+      # Database
+      DATABASE_URL: postgresql://salla_user:${DB_PASSWORD:-salla_secure_password_2024}@db:5432/salla_optimizer
+      
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      
+      # API Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      TAVILY_API_KEY: ${TAVILY_API_KEY}
+      
+      # OAuth
+      OAUTH_CALLBACK_URL: ${OAUTH_CALLBACK_URL:-http://localhost:8000/oauth/callback}
+      
+      # Optional
+      SALLA_CLIENT_ID: ${SALLA_CLIENT_ID:-}
+      SALLA_CLIENT_SECRET: ${SALLA_CLIENT_SECRET:-}
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      
+      # Python
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./store-data:/app/store-data
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - salla-network
+    restart: unless-stopped
+
+  # Celery Worker (Background Tasks)
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salla-celery-worker
+    command: >
+      celery -A scheduler.celery_app worker 
+      --loglevel=info 
+      --concurrency=4 
+      --max-tasks-per-child=50
+    environment:
+      # Database
+      DATABASE_URL: postgresql://salla_user:${DB_PASSWORD:-salla_secure_password_2024}@db:5432/salla_optimizer
+      
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      
+      # API Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      TAVILY_API_KEY: ${TAVILY_API_KEY}
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      
+      # Python
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./store-data:/app/store-data
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      web:
+        condition: service_started
+    networks:
+      - salla-network
+    restart: unless-stopped
+
+  # Celery Beat (Task Scheduler)
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salla-celery-beat
+    command: >
+      celery -A scheduler.celery_app beat 
+      --loglevel=info 
+      --pidfile=/tmp/celerybeat.pid
+    environment:
+      # Database
+      DATABASE_URL: postgresql://salla_user:${DB_PASSWORD:-salla_secure_password_2024}@db:5432/salla_optimizer
+      
+      # Redis
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      
+      # Python
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      celery_worker:
+        condition: service_started
+    networks:
+      - salla-network
+    restart: unless-stopped
+
+  # Flower (Celery Monitoring UI)
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salla-flower
+    command: >
+      celery -A scheduler.celery_app flower 
+      --port=5555 
+      --broker=redis://redis:6379/0
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+      - celery_worker
+    networks:
+      - salla-network
+    restart: unless-stopped
+
+  # Streamlit Dashboard (Optional)
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: salla-dashboard
+    command: >
+      streamlit run dashboard.py 
+      --server.port 8501 
+      --server.address 0.0.0.0 
+      --server.headless true
+    environment:
+      # Database
+      DATABASE_URL: postgresql://salla_user:${DB_PASSWORD:-salla_secure_password_2024}@db:5432/salla_optimizer
+      
+      # API Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      TAVILY_API_KEY: ${TAVILY_API_KEY}
+      
+      # Python
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./store-data:/app/store-data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - salla-network
+    restart: unless-stopped
+
+# Networks
+networks:
+  salla-network:
+    driver: bridge
+    name: salla-network
+
+# Volumes
+volumes:
+  postgres_data:
+    name: salla-postgres-data
+  redis_data:
+    name: salla-redis-data
