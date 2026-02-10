@@ -45,9 +45,9 @@ RUN mkdir -p /app/store-data /app/logs /app/ai-agent-output && \
     chmod -R 755 /app/store-data /app/logs /app/ai-agent-output
 
 # Convert entrypoint.sh to Unix line endings and make executable
-RUN if [ -f /app/entrypoint.sh ]; then \
-        sed -i 's/\r$//' /app/entrypoint.sh && \
-        chmod +x /app/entrypoint.sh; \
+RUN if [ -f /app/scripts/entrypoint.sh ]; then \
+        sed -i 's/\r$//' /app/scripts/entrypoint.sh && \
+        chmod +x /app/scripts/entrypoint.sh; \
     fi
 
 # Expose ports
