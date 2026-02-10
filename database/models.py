@@ -3,9 +3,10 @@ SQLAlchemy ORM Models for Multi-Tenant Salla Price Optimizer
 """
 
 from datetime import datetime
+from decimal import Decimal
 from sqlalchemy import (
-    Column, Integer, String, Text, Decimal, Boolean, 
-    DateTime, ForeignKey, Index, JSON
+    Column, Integer, String, Text, Boolean, 
+    DateTime, ForeignKey, Index, JSON, Numeric
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -33,7 +34,7 @@ class Store(Base):
     client_secret = Column(String(255))
     
     # Settings
-    min_profit_margin = Column(Decimal(5, 2), default=10.00)
+    min_profit_margin = Column(Numeric(5, 2), default=10.00)
     automation_mode = Column(String(20), default='manual')  # manual, semi-auto, full-auto
     update_frequency_hours = Column(Integer, default=12)
     risk_tolerance = Column(String(20), default='low')  # low, medium, high
@@ -88,9 +89,9 @@ class Product(Base):
     sku = Column(String(100))
     
     # Pricing
-    current_price = Column(Decimal(10, 2), nullable=False)
-    cost_price = Column(Decimal(10, 2))
-    suggested_price = Column(Decimal(10, 2))
+    current_price = Column(Numeric(10, 2), nullable=False)
+    cost_price = Column(Numeric(10, 2))
+    suggested_price = Column(Numeric(10, 2))
     
     # Status
     status = Column(String(50), default='active')
@@ -124,11 +125,11 @@ class Competitor(Base):
     # Competitor details
     competitor_name = Column(String(255), nullable=False)
     competitor_url = Column(Text)
-    competitor_price = Column(Decimal(10, 2), nullable=False)
+    competitor_price = Column(Numeric(10, 2), nullable=False)
     competitor_platform = Column(String(50), default='Salla')
     
     # Data quality
-    confidence_score = Column(Decimal(3, 2), default=0.80)
+    confidence_score = Column(Numeric(3, 2), default=0.80)
     is_valid = Column(Boolean, default=True)
     
     # Timestamps
@@ -156,14 +157,14 @@ class PricingDecision(Base):
     product_id = Column(String(50), nullable=False)
     
     # Decision details
-    old_price = Column(Decimal(10, 2), nullable=False)
-    suggested_price = Column(Decimal(10, 2), nullable=False)
-    final_price = Column(Decimal(10, 2))
+    old_price = Column(Numeric(10, 2), nullable=False)
+    suggested_price = Column(Numeric(10, 2), nullable=False)
+    final_price = Column(Numeric(10, 2))
     
     # Strategy
     strategy_used = Column(String(50))  # undercut, match, premium, hold
     risk_level = Column(String(20))  # low, medium, high
-    profit_margin_percentage = Column(Decimal(5, 2))
+    profit_margin_percentage = Column(Numeric(5, 2))
     
     # Execution
     action_taken = Column(String(50), index=True)  # updated, skipped, failed, pending
@@ -232,7 +233,7 @@ class ActivityLog(Base):
     # Activity details
     activity_type = Column(String(100), nullable=False, index=True)
     description = Column(Text)
-    metadata = Column(JSON)  # Flexible JSON storage
+    activity_metadata = Column(JSON)  # Flexible JSON storage (renamed from metadata)
     
     # Timestamp
     created_at = Column(DateTime, default=func.now(), index=True)
