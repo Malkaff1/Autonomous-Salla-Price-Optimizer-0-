@@ -72,9 +72,9 @@ services:
       # OAuth
       OAUTH_CALLBACK_URL: ${OAUTH_CALLBACK_URL:-http://localhost:8000/oauth/callback}
       
-      # Optional
-      SALLA_CLIENT_ID: ${SALLA_CLIENT_ID:-}
-      SALLA_CLIENT_SECRET: ${SALLA_CLIENT_SECRET:-}
+      # Salla OAuth Credentials
+      SALLA_CLIENT_ID: ${SALLA_CLIENT_ID}
+      SALLA_CLIENT_SECRET: ${SALLA_CLIENT_SECRET}
       
       # Logging
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
