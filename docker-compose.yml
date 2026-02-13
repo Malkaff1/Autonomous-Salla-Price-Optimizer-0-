@@ -54,7 +54,8 @@ services:
       - -c
       - |
         ./scripts/entrypoint.sh
-        exec python3 scripts/start_api.py
+        cd /app
+        exec python3 -m uvicorn api.oauth_handler:app --host 0.0.0.0 --port 8000 --log-level info
     environment:
       # Database
       DATABASE_URL: postgresql://salla_user:${DB_PASSWORD:-salla_secure_password_2024}@db:5432/salla_optimizer

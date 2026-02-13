@@ -51,10 +51,10 @@ celery_app.conf.beat_schedule = {
         'schedule': crontab(minute=0),  # Every hour
     },
     
-    # Refresh expired tokens daily
-    'refresh-tokens-daily': {
+    # Refresh expired tokens every 12 hours (proactive)
+    'refresh-tokens-12h': {
         'task': 'scheduler.tasks.refresh_expired_tokens',
-        'schedule': crontab(minute=0, hour=2),  # 2 AM daily
+        'schedule': crontab(minute=0, hour='*/12'),  # Every 12 hours
     },
     
     # Cleanup old data weekly

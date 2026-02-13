@@ -50,11 +50,43 @@ class MultiTenantOptimizer:
             logger.error(f"Error cleaning store output: {e}")
     
     def set_store_environment(self, store: Store):
-        """Set environment variables for specific store"""
+        """
+        Set environment variables for specific store
+        Uses store-specific tokens but system-wide client credentials
+        """
+        # Set store-specific tokens (never stored in .env)
         os.environ["SALLA_ACCESS_TOKEN"] = store.access_token
         os.environ["SALLA_REFRESH_TOKEN"] = store.refresh_token
         os.environ["SALLA_STORE_ID"] = store.store_id
         os.environ["SALLA_STORE_NAME"] = store.store_name
+        
+        # Set store-specific settings
+        os.environ["MIN_PROFIT_MARGIN"] = str(store.min_profit_margin)
+        os.environ["AUTOMATION_MODE"] = store.automation_mode
+        os.environ["RISK_TOLERANCE"] = store.risk_tolerance
+        
+        # Get system-wide client credentials from database or environment
+        try:
+            with get_db() as db:
+                from database.models import SystemSetting
+                
+                client_id_setting = db.query(SystemSetting).filter(
+                    SystemSetting.setting_key == 'SALLA_CLIENT_ID'
+                ).first()
+                
+                client_secret_setting = db.query(SystemSetting).filter(
+                    SystemSetting.setting_key == 'SALLA_CLIENT_SECRET'
+                ).first()
+                
+                if client_id_setting and client_secret_setting:
+                    os.environ["SALLA_CLIENT_ID"] = client_id_setting.setting_value
+                    os.environ["SALLA_CLIENT_SECRET"] = client_secret_setting.setting_value
+                    logger.info("✅ Using system credentials from database")
+                else:
+                    # Fallback to environment (but log warning)
+                    logger.warning("⚠️ System credentials not in database, using environment fallback")
+        except Exception as e:
+            logger.warning(f"Could not load system credentials from database: {e}")
         
         # Set store-specific output directory
         store_output_dir = self.get_store_output_dir(store.store_id)
@@ -102,20 +134,32 @@ class MultiTenantOptimizer:
                 logger.info(f"📊 Store: {store.store_name}")
                 logger.info(f"⚙️  Automation Mode: {store.automation_mode}")
                 logger.info(f"💰 Min Profit Margin: {store.min_profit_margin}%")
+                logger.info(f"🎯 Risk Tolerance: {store.risk_tolerance}")
             
-            # Initialize LLM
-            llm = LLM(model="gpt-4o", temperature=0)
+            # Initialize LLM with store-specific context
+            llm = LLM(
+                model="gpt-4o",
+                temperature=0,
+                # Add store context to system message
+                system_message=f"You are optimizing prices for {store.store_name}. "
+                              f"Minimum profit margin: {store.min_profit_margin}%. "
+                              f"Automation mode: {store.automation_mode}. "
+                              f"Risk tolerance: {store.risk_tolerance}."
+            )
             
-            # Create agents and tasks
+            # Create store-specific agents and tasks
+            # Each store gets its own agent instances with unique context
             analyst_agent, analyst_task = get_pricing_analyst(llm, scout_task)
             executor_agent, executor_task = get_executor_agent(llm, analyst_task)
             
-            # Create crew
+            # Create unique crew for this store
             crew = Crew(
                 agents=[scout_agent, analyst_agent, executor_agent],
                 tasks=[scout_task, analyst_task, executor_task],
                 process=Process.sequential,
-                verbose=True
+                verbose=True,
+                # Add store context to crew
+                context=f"Store: {store.store_name} (ID: {store.store_id})"
             )
             
             # Run optimization

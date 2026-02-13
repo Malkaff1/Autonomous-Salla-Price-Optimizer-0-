@@ -2,6 +2,12 @@
 """
 Simple API starter script that ensures uvicorn binds to 0.0.0.0
 """
+import sys
+import os
+
+# Add parent directory to Python path so we can import api module
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import uvicorn
 
 if __name__ == "__main__":

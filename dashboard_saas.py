@@ -1,6 +1,6 @@
 """
-Professional Multi-Tenant SaaS Dashboard
-Salla Price Optimizer - Production Grade UI
+Premium Dark Mode SaaS Dashboard - Maritime Logistics Aesthetic
+Salla Price Optimizer - Multi-Tenant Platform
 """
 
 import streamlit as st
@@ -21,137 +21,315 @@ from scheduler.celery_app import celery_app
 
 # Page configuration
 st.set_page_config(
-    page_title="Salla Price Optimizer - SaaS Dashboard",
+    page_title="Salla Price Optimizer - Premium Dashboard",
     page_icon="🛍️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for professional look
+# Premium Dark Mode CSS - Maritime Logistics Aesthetic
 st.markdown("""
 <style>
-    /* Main theme colors */
-    :root {
-        --primary-color: #667eea;
-        --secondary-color: #764ba2;
-        --success-color: #28a745;
-        --warning-color: #ffc107;
-        --danger-color: #dc3545;
+    /* Global Dark Theme */
+    .stApp {
+        background-color: #0E1117;
     }
     
-    /* Header styling */
-    .main-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Premium Header */
+    .premium-header {
+        background: linear-gradient(135deg, #0E1117 0%, #1A1D24 100%);
         padding: 2rem;
-        border-radius: 10px;
-        color: white;
-        text-align: center;
+        border-radius: 12px;
+        border: 1px solid #00FF00;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
         margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
     }
     
-    /* Metric cards */
-    .metric-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        border-left: 4px solid #667eea;
-        margin-bottom: 1rem;
-    }
-    
-    .metric-card h3 {
-        color: #667eea;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .metric-card h2 {
-        color: #333;
-        font-size: 2rem;
+    .premium-header h1 {
+        color: #00FF00;
+        font-size: 2.5rem;
+        font-weight: 700;
         margin: 0;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    }
+
+    
+    .premium-header p {
+        color: #FAFAFA;
+        font-size: 1rem;
+        margin-top: 0.5rem;
+        opacity: 0.8;
     }
     
-    /* Status badges */
-    .status-badge {
-        padding: 0.25rem 0.75rem;
+    /* Product Cards - Premium Style */
+    .product-card {
+        background: linear-gradient(135deg, #1A1D24 0%, #0E1117 100%);
+        border: 1px solid #2D3139;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .product-card:hover {
+        border-color: #00FF00;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .product-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #00FF00 0%, transparent 100%);
+    }
+
+    
+    /* Risk Badges */
+    .risk-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
         border-radius: 20px;
         font-size: 0.85rem;
         font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     
-    .status-active {
-        background: #d4edda;
-        color: #155724;
+    .risk-low {
+        background: rgba(0, 255, 0, 0.1);
+        color: #00FF00;
+        border: 1px solid #00FF00;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
     }
     
-    .status-inactive {
-        background: #f8d7da;
-        color: #721c24;
+    .risk-medium {
+        background: rgba(255, 193, 7, 0.1);
+        color: #FFC107;
+        border: 1px solid #FFC107;
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.2);
     }
     
-    .status-running {
-        background: #cce5ff;
-        color: #004085;
+    .risk-high {
+        background: rgba(255, 75, 75, 0.1);
+        color: #FF4B4B;
+        border: 1px solid #FF4B4B;
+        box-shadow: 0 0 10px rgba(255, 75, 75, 0.2);
+    }
+
+    
+    /* Metric Cards */
+    .metric-card {
+        background: linear-gradient(135deg, #1A1D24 0%, #0E1117 100%);
+        border: 1px solid #2D3139;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
     }
     
-    /* Product table */
-    .product-image {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 8px;
+    .metric-card:hover {
+        border-color: #00FF00;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.15);
     }
     
-    /* Sidebar styling */
-    .sidebar .sidebar-content {
-        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #00FF00;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
     }
     
-    /* Button styling */
+    .metric-label {
+        font-size: 0.9rem;
+        color: #FAFAFA;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 0.5rem;
+    }
+
+    
+    /* Price Display */
+    .price-current {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #FAFAFA;
+    }
+    
+    .price-suggested {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #00FF00;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    }
+    
+    .price-change-positive {
+        color: #00FF00;
+        font-weight: 600;
+    }
+    
+    .price-change-negative {
+        color: #FF4B4B;
+        font-weight: 600;
+    }
+    
+    /* Action Buttons */
     .stButton>button {
         border-radius: 8px;
         font-weight: 600;
-        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        border: none;
     }
     
     .stButton>button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    
+    /* Sidebar Drawer */
+    .css-1d391kg {
+        background-color: #0E1117;
     }
     
-    /* Log viewer */
-    .log-viewer {
-        background: #1e1e1e;
-        color: #d4d4d4;
-        padding: 1rem;
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0E1117 0%, #1A1D24 100%);
+        border-right: 1px solid #00FF00;
+    }
+    
+    /* Competitor Card in Drawer */
+    .competitor-card {
+        background: #1A1D24;
+        border: 1px solid #2D3139;
         border-radius: 8px;
-        font-family: 'Courier New', monospace;
-        font-size: 0.85rem;
-        max-height: 400px;
-        overflow-y: auto;
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
     
-    .log-entry {
-        margin-bottom: 0.5rem;
-        padding: 0.25rem;
+    .competitor-card:hover {
+        border-color: #00FF00;
     }
     
-    .log-info { color: #4ec9b0; }
-    .log-warning { color: #dcdcaa; }
-    .log-error { color: #f48771; }
-    .log-success { color: #b5cea8; }
+    /* AI Recommendation Box */
+    .ai-recommendation {
+        background: linear-gradient(135deg, #1A1D24 0%, #0E1117 100%);
+        border: 2px solid #00FF00;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    }
+
+    
+    .ai-recommendation h3 {
+        color: #00FF00;
+        margin-top: 0;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    }
+    
+    /* Donut Chart Container */
+    .chart-container {
+        background: #1A1D24;
+        border: 1px solid #2D3139;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    /* Status Indicators */
+    .status-active {
+        color: #00FF00;
+        font-weight: 600;
+    }
+    
+    .status-inactive {
+        color: #FF4B4B;
+        font-weight: 600;
+    }
+    
+    /* Product Image Placeholder */
+    .product-image {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #00FF00 0%, #00CC00 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+    }
+
+    
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #0E1117;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #00FF00;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #00CC00;
+    }
+    
+    /* Tab Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #1A1D24;
+        border-radius: 8px;
+        padding: 0.5rem;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: transparent;
+        border-radius: 6px;
+        color: #FAFAFA;
+        font-weight: 600;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: #00FF00 !important;
+        color: #0E1117 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Initialize session state
 if 'selected_store_id' not in st.session_state:
     st.session_state.selected_store_id = None
 
+if 'selected_product_id' not in st.session_state:
+    st.session_state.selected_product_id = None
+
 if 'auto_refresh' not in st.session_state:
     st.session_state.auto_refresh = False
 
 
+# Database helper functions
 def get_all_stores():
     """Get all stores from database"""
     with get_db() as db:
@@ -174,15 +352,17 @@ def get_store_products(store_id):
         ).all()
 
 
-def get_store_competitors(store_id):
-    """Get competitors for a store"""
+
+def get_product_competitors(store_id, product_id):
+    """Get competitors for a specific product"""
     with get_db() as db:
         return db.query(Competitor).filter(
-            Competitor.store_id == store_id
-        ).all()
+            Competitor.store_id == store_id,
+            Competitor.product_id == product_id
+        ).order_by(Competitor.competitor_price.asc()).all()
 
 
-def get_recent_decisions(store_id, limit=10):
+def get_recent_decisions(store_id, limit=100):
     """Get recent pricing decisions"""
     with get_db() as db:
         return db.query(PricingDecision).filter(
@@ -190,20 +370,12 @@ def get_recent_decisions(store_id, limit=10):
         ).order_by(desc(PricingDecision.decided_at)).limit(limit).all()
 
 
-def get_recent_runs(store_id, limit=5):
+def get_recent_runs(store_id, limit=10):
     """Get recent optimization runs"""
     with get_db() as db:
         return db.query(OptimizationRun).filter(
             OptimizationRun.store_id == store_id
         ).order_by(desc(OptimizationRun.started_at)).limit(limit).all()
-
-
-def get_recent_activity(store_id, limit=20):
-    """Get recent activity logs"""
-    with get_db() as db:
-        return db.query(ActivityLog).filter(
-            ActivityLog.store_id == store_id
-        ).order_by(desc(ActivityLog.created_at)).limit(limit).all()
 
 
 def update_store_settings(store_id, min_margin, automation_mode, update_frequency):
@@ -219,6 +391,7 @@ def update_store_settings(store_id, min_margin, automation_mode, update_frequenc
     return False
 
 
+
 def trigger_manual_optimization(store_id):
     """Trigger manual optimization for a store"""
     from scheduler.tasks import manual_optimize
@@ -228,18 +401,52 @@ def trigger_manual_optimization(store_id):
 
 def approve_price_update(store_id, product_id, new_price):
     """Approve and execute price update"""
-    # This would call the Salla API to update the price
-    # For now, we'll just log it
     with get_db() as db:
+        # Update pricing decision
+        decision = db.query(PricingDecision).filter(
+            PricingDecision.store_id == store_id,
+            PricingDecision.product_id == product_id
+        ).order_by(desc(PricingDecision.decided_at)).first()
+        
+        if decision:
+            decision.action_taken = 'approved'
+            decision.final_price = new_price
+            decision.executed_at = datetime.utcnow()
+        
+        # Log activity
         activity = ActivityLog(
             store_id=store_id,
-            activity_type='manual_price_update',
-            description=f'Manual price update approved for product {product_id}',
-            metadata={'product_id': product_id, 'new_price': float(new_price)}
+            activity_type='manual_price_approval',
+            description=f'Manual price approval for product {product_id}',
+            activity_metadata={'product_id': product_id, 'new_price': float(new_price)}
         )
         db.add(activity)
         db.commit()
     return True
+
+
+def reject_price_update(store_id, product_id):
+    """Reject price update"""
+    with get_db() as db:
+        decision = db.query(PricingDecision).filter(
+            PricingDecision.store_id == store_id,
+            PricingDecision.product_id == product_id
+        ).order_by(desc(PricingDecision.decided_at)).first()
+        
+        if decision:
+            decision.action_taken = 'rejected'
+            decision.executed_at = datetime.utcnow()
+        
+        activity = ActivityLog(
+            store_id=store_id,
+            activity_type='manual_price_rejection',
+            description=f'Manual price rejection for product {product_id}',
+            activity_metadata={'product_id': product_id}
+        )
+        db.add(activity)
+        db.commit()
+    return True
+
 
 
 # ============================================
@@ -248,34 +455,39 @@ def approve_price_update(store_id, product_id, new_price):
 
 with st.sidebar:
     st.markdown("""
-    <div style="text-align: center; padding: 1rem;">
-        <h1 style="color: white;">🛍️ Salla Optimizer</h1>
-        <p style="color: rgba(255,255,255,0.8);">Multi-Tenant SaaS Dashboard</p>
+    <div style="text-align: center; padding: 1.5rem 0;">
+        <h1 style="color: #00FF00; font-size: 2rem; margin: 0; text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);">
+            🛍️ SALLA OPTIMIZER
+        </h1>
+        <p style="color: #FAFAFA; opacity: 0.7; font-size: 0.85rem; margin-top: 0.5rem;">
+            PREMIUM MULTI-TENANT PLATFORM
+        </p>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
     
     # Store Selection
-    st.subheader("📊 Select Store")
+    st.markdown("### 📊 SELECT STORE")
     
     stores = get_all_stores()
     
     if not stores:
-        st.warning("⚠️ No stores found. Please onboard a store first.")
+        st.error("⚠️ NO STORES FOUND")
         st.info("Visit: http://localhost:8000/oauth/authorize")
         st.stop()
     
     # Create store options
     store_options = {
-        f"{store.store_name} ({store.store_id})": store.store_id 
+        f"{store.store_name}": store.store_id 
         for store in stores
     }
     
     selected_store_name = st.selectbox(
         "Choose Store",
         options=list(store_options.keys()),
-        key="store_selector"
+        key="store_selector",
+        label_visibility="collapsed"
     )
     
     selected_store_id = store_options[selected_store_name]
@@ -283,306 +495,472 @@ with st.sidebar:
     
     # Get selected store details
     current_store = get_store_by_id(selected_store_id)
+
     
     if current_store:
         # Store status
-        status_color = "🟢" if current_store.is_active else "🔴"
+        status_icon = "🟢" if current_store.is_active else "🔴"
+        status_class = "status-active" if current_store.is_active else "status-inactive"
+        
         st.markdown(f"""
-        **Status:** {status_color} {'Active' if current_store.is_active else 'Inactive'}  
-        **Plan:** {current_store.subscription_plan.title()}  
-        **Mode:** {current_store.automation_mode.replace('_', ' ').title()}
-        """)
+        <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; border: 1px solid #2D3139; margin: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: #FAFAFA; opacity: 0.7;">STATUS</span>
+                <span class="{status_class}">{status_icon} {'ACTIVE' if current_store.is_active else 'INACTIVE'}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: #FAFAFA; opacity: 0.7;">PLAN</span>
+                <span style="color: #00FF00;">{current_store.subscription_plan.upper()}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #FAFAFA; opacity: 0.7;">MODE</span>
+                <span style="color: #FAFAFA;">{current_store.automation_mode.replace('_', ' ').upper()}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         
         st.markdown("---")
         
         # Store Settings
-        st.subheader("⚙️ Store Settings")
+        st.markdown("### ⚙️ SETTINGS")
         
-        with st.expander("📋 Configuration", expanded=False):
-            # Minimum Profit Margin
+        with st.expander("📋 CONFIGURATION", expanded=False):
             min_margin = st.number_input(
-                "Minimum Profit Margin (%)",
+                "Min Profit Margin (%)",
                 min_value=0.0,
                 max_value=100.0,
                 value=float(current_store.min_profit_margin),
-                step=0.5,
-                help="Minimum profit margin to maintain"
+                step=0.5
             )
             
-            # Automation Mode
             automation_mode = st.selectbox(
                 "Automation Mode",
                 options=['manual', 'semi-auto', 'full-auto'],
-                index=['manual', 'semi-auto', 'full-auto'].index(current_store.automation_mode),
-                help="Manual: You approve all changes\nSemi-Auto: Low risk auto-approved\nFull-Auto: All changes auto-approved"
+                index=['manual', 'semi-auto', 'full-auto'].index(current_store.automation_mode)
             )
             
-            # Update Frequency
             update_frequency = st.slider(
                 "Update Frequency (hours)",
                 min_value=1,
                 max_value=24,
-                value=current_store.update_frequency_hours,
-                help="How often to run optimization"
+                value=current_store.update_frequency_hours
             )
             
-            # Risk Tolerance
-            risk_tolerance = st.selectbox(
-                "Risk Tolerance",
-                options=['low', 'medium', 'high'],
-                index=['low', 'medium', 'high'].index(current_store.risk_tolerance),
-                help="How aggressive to be with pricing"
-            )
-            
-            # Save button
-            if st.button("💾 Save Settings", type="primary"):
+            if st.button("💾 SAVE SETTINGS", type="primary", use_container_width=True):
                 if update_store_settings(selected_store_id, min_margin, automation_mode, update_frequency):
-                    st.success("✅ Settings saved!")
+                    st.success("✅ SETTINGS SAVED")
                     st.rerun()
                 else:
-                    st.error("❌ Failed to save settings")
+                    st.error("❌ FAILED TO SAVE")
+
         
         st.markdown("---")
         
         # Quick Actions
-        st.subheader("🚀 Quick Actions")
+        st.markdown("### 🚀 QUICK ACTIONS")
         
         col1, col2 = st.columns(2)
         
         with col1:
-            if st.button("🔄 Run Now", use_container_width=True):
+            if st.button("🔄 RUN NOW", use_container_width=True):
                 task_id = trigger_manual_optimization(selected_store_id)
-                st.success(f"✅ Optimization started!\nTask ID: {task_id[:8]}...")
+                st.success(f"✅ STARTED\n{task_id[:8]}...")
         
         with col2:
-            if st.button("📊 Refresh", use_container_width=True):
+            if st.button("📊 REFRESH", use_container_width=True):
                 st.rerun()
         
-        # Auto-refresh toggle
         st.session_state.auto_refresh = st.checkbox(
             "🔄 Auto-refresh (30s)",
             value=st.session_state.auto_refresh
         )
-        
-        st.markdown("---")
-        
-        # Store Info
-        with st.expander("ℹ️ Store Information"):
-            st.markdown(f"""
-            **Store ID:** {current_store.store_id}  
-            **Domain:** {current_store.store_domain or 'N/A'}  
-            **Owner:** {current_store.owner_name}  
-            **Email:** {current_store.owner_email}  
-            **Created:** {current_store.created_at.strftime('%Y-%m-%d')}  
-            **Last Run:** {current_store.last_optimization_run.strftime('%Y-%m-%d %H:%M') if current_store.last_optimization_run else 'Never'}
-            """)
+
 
 # ============================================
 # MAIN CONTENT
 # ============================================
 
-# Header
+# Premium Header
 st.markdown(f"""
-<div class="main-header">
+<div class="premium-header">
     <h1>🛍️ {current_store.store_name}</h1>
-    <p>Real-time Price Optimization Dashboard</p>
+    <p>REAL-TIME PRICE OPTIMIZATION COMMAND CENTER</p>
 </div>
 """, unsafe_allow_html=True)
+
+# Get data
+products = get_store_products(selected_store_id)
+recent_decisions = get_recent_decisions(selected_store_id, limit=100)
+recent_runs = get_recent_runs(selected_store_id, limit=1)
+
+# Create decision lookup
+product_decisions = {}
+for decision in recent_decisions:
+    if decision.product_id not in product_decisions:
+        product_decisions[decision.product_id] = decision
+
 
 # Metrics Row
 col1, col2, col3, col4 = st.columns(4)
 
-products = get_store_products(selected_store_id)
-competitors = get_store_competitors(selected_store_id)
-recent_decisions = get_recent_decisions(selected_store_id, limit=100)
-recent_runs = get_recent_runs(selected_store_id, limit=1)
-
 with col1:
-    st.metric(
-        label="📦 Products Tracked",
-        value=len(products),
-        delta=None
-    )
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-value">{len(products)}</div>
+        <div class="metric-label">Products Tracked</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col2:
-    st.metric(
-        label="🏪 Competitors Found",
-        value=len(competitors),
-        delta=None
-    )
+    competitors_count = sum(len(get_product_competitors(selected_store_id, p.product_id)) for p in products)
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-value">{competitors_count}</div>
+        <div class="metric-label">Competitors Found</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col3:
-    approved_count = len([d for d in recent_decisions if d.action_taken == 'updated'])
-    st.metric(
-        label="✅ Prices Updated",
-        value=approved_count,
-        delta=None
-    )
+    approved_count = len([d for d in recent_decisions if d.action_taken in ['updated', 'approved']])
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-value">{approved_count}</div>
+        <div class="metric-label">Prices Updated</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with col4:
     if recent_runs and recent_runs[0].completed_at:
         last_run = recent_runs[0]
         hours_ago = int((datetime.utcnow() - last_run.completed_at).total_seconds() / 3600)
-        st.metric(
-            label="⏱️ Last Run",
-            value=f"{hours_ago}h ago",
-            delta=None
-        )
+        time_display = f"{hours_ago}h"
     else:
-        st.metric(
-            label="⏱️ Last Run",
-            value="Never",
-            delta=None
-        )
+        time_display = "Never"
+    
+    st.markdown(f"""
+    <div class="metric-card">
+        <div class="metric-value">{time_display}</div>
+        <div class="metric-label">Last Run</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
+
 
 # Tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📦 Products", 
-    "📊 Analytics", 
-    "🔍 Decisions", 
-    "📜 Activity Logs",
-    "🔴 Live Tasks"
-])
+tab1, tab2, tab3 = st.tabs(["📦 PRODUCTS", "📊 ANALYTICS", "📜 ACTIVITY"])
 
 # ============================================
-# TAB 1: PRODUCTS
+# TAB 1: PRODUCTS WITH PREMIUM CARDS
 # ============================================
 
 with tab1:
-    st.subheader("📦 Product Catalog with AI Suggestions")
+    st.markdown("### 📦 PRODUCT CATALOG")
     
     if not products:
         st.info("No products found. Run optimization to discover products.")
     else:
-        # Get latest decisions for each product
-        product_decisions = {}
-        for decision in recent_decisions:
-            if decision.product_id not in product_decisions:
-                product_decisions[decision.product_id] = decision
-        
-        # Create product table
         for product in products:
-            with st.container():
-                col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 2, 2])
-                
-                with col1:
-                    # Product image placeholder
-                    st.markdown(f"""
-                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                         border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px;">
-                        🛍️
+            # Get decision for this product
+            decision = product_decisions.get(product.product_id)
+            
+            # Determine risk level and badge
+            if decision:
+                risk_level = decision.risk_level or "Unknown"
+                risk_class = f"risk-{risk_level.lower()}"
+                suggested_price = decision.suggested_price
+                price_change = suggested_price - product.current_price
+                action_status = decision.action_taken
+            else:
+                risk_level = "Pending"
+                risk_class = "risk-medium"
+                suggested_price = product.current_price
+                price_change = 0
+                action_status = "pending"
+            
+            # Price change indicator
+            if price_change > 0:
+                change_class = "price-change-positive"
+                change_icon = "↑"
+            elif price_change < 0:
+                change_class = "price-change-negative"
+                change_icon = "↓"
+            else:
+                change_class = ""
+                change_icon = "="
+
+            
+            # Product Card
+            col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 2, 2])
+            
+            with col1:
+                st.markdown(f"""
+                <div class="product-image">
+                    🛍️
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                st.markdown(f"""
+                <div style="padding-top: 0.5rem;">
+                    <div style="color: #FAFAFA; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.3rem;">
+                        {product.name}
                     </div>
-                    """, unsafe_allow_html=True)
+                    <div style="color: #FAFAFA; opacity: 0.6; font-size: 0.85rem;">
+                        ID: {product.product_id} | SKU: {product.sku or 'N/A'}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col3:
+                st.markdown(f"""
+                <div style="padding-top: 0.5rem;">
+                    <div style="color: #FAFAFA; opacity: 0.7; font-size: 0.85rem;">CURRENT PRICE</div>
+                    <div class="price-current">{product.current_price:.2f} SAR</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col4:
+                st.markdown(f"""
+                <div style="padding-top: 0.5rem;">
+                    <div style="color: #FAFAFA; opacity: 0.7; font-size: 0.85rem;">AI SUGGESTS</div>
+                    <div class="price-suggested">{suggested_price:.2f} SAR</div>
+                    <div class="{change_class}" style="font-size: 0.9rem;">
+                        {change_icon} {abs(price_change):.2f} SAR
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col5:
+                st.markdown(f"""
+                <div style="padding-top: 0.5rem;">
+                    <div class="risk-badge {risk_class}">
+                        {risk_level}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
                 
-                with col2:
-                    st.markdown(f"**{product.name}**")
-                    st.caption(f"ID: {product.product_id} | SKU: {product.sku or 'N/A'}")
-                
-                with col3:
-                    st.markdown(f"**Cost:** {product.cost_price or 0:.2f} SAR")
-                    st.markdown(f"**Current:** {product.current_price:.2f} SAR")
-                
-                with col4:
-                    # AI Suggestion
-                    if product.product_id in product_decisions:
-                        decision = product_decisions[product.product_id]
-                        suggested = decision.suggested_price
-                        delta = suggested - product.current_price
-                        
-                        if decision.risk_level == 'Low':
-                            risk_color = "🟢"
-                        elif decision.risk_level == 'Medium':
-                            risk_color = "🟡"
-                        else:
-                            risk_color = "🔴"
-                        
-                        st.markdown(f"**AI Suggests:** {suggested:.2f} SAR")
-                        st.caption(f"{risk_color} {decision.risk_level} Risk | {delta:+.2f} SAR")
-                    else:
-                        st.markdown("**AI Suggests:** Pending...")
-                        st.caption("⏳ Awaiting analysis")
-                
-                with col5:
-                    if product.product_id in product_decisions:
-                        decision = product_decisions[product.product_id]
-                        
-                        if decision.action_taken == 'updated':
-                            st.success("✅ Updated")
-                        elif decision.action_taken == 'skipped':
-                            st.warning("⏭️ Skipped")
-                        elif decision.risk_level != 'High':
-                            if st.button("✅ Approve", key=f"approve_{product.product_id}"):
-                                if approve_price_update(selected_store_id, product.product_id, decision.suggested_price):
-                                    st.success("Price update approved!")
-                                    st.rerun()
-                        else:
-                            st.error("⛔ High Risk")
-                    else:
-                        st.info("⏳ Pending")
-                
-                st.markdown("---")
+                if st.button("📋 DETAILS", key=f"details_{product.product_id}", use_container_width=True):
+                    st.session_state.selected_product_id = product.product_id
+                    st.rerun()
+            
+            st.markdown("<hr style='border: 1px solid #2D3139; margin: 1rem 0;'>", unsafe_allow_html=True)
+
 
 # ============================================
-# TAB 2: ANALYTICS
+# PRODUCT DETAIL DRAWER (SIDEBAR)
+# ============================================
+
+if st.session_state.selected_product_id:
+    with st.sidebar:
+        st.markdown("---")
+        st.markdown("### 📋 PRODUCT DETAILS")
+        
+        # Get product details
+        selected_product = next((p for p in products if p.product_id == st.session_state.selected_product_id), None)
+        
+        if selected_product:
+            decision = product_decisions.get(selected_product.product_id)
+            competitors = get_product_competitors(selected_store_id, selected_product.product_id)
+            
+            # Product Info
+            st.markdown(f"""
+            <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; border: 1px solid #2D3139; margin-bottom: 1rem;">
+                <div style="color: #00FF00; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">
+                    {selected_product.name}
+                </div>
+                <div style="color: #FAFAFA; opacity: 0.7; font-size: 0.85rem;">
+                    ID: {selected_product.product_id}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Current vs Suggested
+            if decision:
+                st.markdown(f"""
+                <div style="background: #1A1D24; padding: 1rem; border-radius: 8px; border: 1px solid #2D3139; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #FAFAFA; opacity: 0.7;">Current Price</span>
+                        <span style="color: #FAFAFA; font-weight: 600;">{selected_product.current_price:.2f} SAR</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #FAFAFA; opacity: 0.7;">Suggested Price</span>
+                        <span style="color: #00FF00; font-weight: 600;">{decision.suggested_price:.2f} SAR</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            
+            # Competitors
+            if competitors:
+                st.markdown("#### 🏪 COMPETITORS")
+                for comp in competitors[:5]:
+                    st.markdown(f"""
+                    <div class="competitor-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: #FAFAFA; font-weight: 600; margin-bottom: 0.3rem;">
+                                    {comp.competitor_name}
+                                </div>
+                                <div style="color: #FAFAFA; opacity: 0.6; font-size: 0.85rem;">
+                                    Confidence: {comp.confidence_score:.0%}
+                                </div>
+                            </div>
+                            <div style="color: #00FF00; font-size: 1.3rem; font-weight: 700;">
+                                {comp.competitor_price:.2f} SAR
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # AI Recommendation
+            if decision:
+                st.markdown(f"""
+                <div class="ai-recommendation">
+                    <h3>🤖 AI RECOMMENDATION</h3>
+                    <div style="color: #FAFAFA; margin-bottom: 1rem;">
+                        {decision.reasoning or 'AI analysis in progress...'}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="color: #FAFAFA; opacity: 0.7;">Strategy</span>
+                        <span style="color: #00FF00; font-weight: 600;">{decision.strategy_used or 'N/A'}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #FAFAFA; opacity: 0.7;">Profit Margin</span>
+                        <span style="color: #00FF00; font-weight: 600;">{decision.profit_margin_percentage:.1f}%</span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                
+                # Action Buttons
+                if decision.action_taken in ['pending', 'skipped']:
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        if st.button("✅ APPROVE", key="approve_btn", type="primary", use_container_width=True):
+                            if approve_price_update(selected_store_id, selected_product.product_id, decision.suggested_price):
+                                st.success("✅ APPROVED!")
+                                st.session_state.selected_product_id = None
+                                st.rerun()
+                    
+                    with col2:
+                        if st.button("❌ REJECT", key="reject_btn", use_container_width=True):
+                            if reject_price_update(selected_store_id, selected_product.product_id):
+                                st.warning("❌ REJECTED")
+                                st.session_state.selected_product_id = None
+                                st.rerun()
+                else:
+                    status_text = decision.action_taken.upper()
+                    status_color = "#00FF00" if decision.action_taken in ['updated', 'approved'] else "#FF4B4B"
+                    st.markdown(f"""
+                    <div style="background: {status_color}20; border: 1px solid {status_color}; border-radius: 8px; padding: 1rem; text-align: center;">
+                        <div style="color: {status_color}; font-weight: 600; font-size: 1.1rem;">
+                            {status_text}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            # Close button
+            if st.button("✖️ CLOSE", key="close_drawer", use_container_width=True):
+                st.session_state.selected_product_id = None
+                st.rerun()
+
+
+# ============================================
+# TAB 2: ANALYTICS WITH DONUT CHARTS
 # ============================================
 
 with tab2:
-    st.subheader("📊 Performance Analytics")
+    st.markdown("### 📊 PERFORMANCE ANALYTICS")
     
-    # Get optimization runs for charts
-    all_runs = get_recent_runs(selected_store_id, limit=30)
+    # Calculate competitive pricing percentage
+    total_products = len(products)
+    competitive_products = len([d for d in recent_decisions if d.action_taken in ['updated', 'approved']])
+    competitive_percentage = (competitive_products / total_products * 100) if total_products > 0 else 0
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Competitive Pricing Donut Chart
+        fig1 = go.Figure(data=[go.Pie(
+            labels=['Competitive', 'Not Optimized'],
+            values=[competitive_products, total_products - competitive_products],
+            hole=0.6,
+            marker=dict(colors=['#00FF00', '#2D3139']),
+            textfont=dict(color='#FAFAFA', size=14),
+            hovertemplate='<b>%{label}</b><br>%{value} products<br>%{percent}<extra></extra>'
+        )])
+        
+        fig1.update_layout(
+            title=dict(
+                text='Competitive Pricing',
+                font=dict(color='#FAFAFA', size=18),
+                x=0.5,
+                xanchor='center'
+            ),
+            annotations=[dict(
+                text=f'{competitive_percentage:.0f}%',
+                x=0.5, y=0.5,
+                font=dict(size=32, color='#00FF00'),
+                showarrow=False
+            )],
+            paper_bgcolor='#1A1D24',
+            plot_bgcolor='#1A1D24',
+            showlegend=True,
+            legend=dict(font=dict(color='#FAFAFA')),
+            height=400
+        )
+        
+        st.plotly_chart(fig1, use_container_width=True)
+
+    
+    with col2:
+        # Risk Distribution Donut Chart
+        low_risk = len([d for d in recent_decisions if d.risk_level == 'Low'])
+        medium_risk = len([d for d in recent_decisions if d.risk_level == 'Medium'])
+        high_risk = len([d for d in recent_decisions if d.risk_level == 'High'])
+        
+        fig2 = go.Figure(data=[go.Pie(
+            labels=['Low Risk', 'Medium Risk', 'High Risk'],
+            values=[low_risk, medium_risk, high_risk],
+            hole=0.6,
+            marker=dict(colors=['#00FF00', '#FFC107', '#FF4B4B']),
+            textfont=dict(color='#FAFAFA', size=14),
+            hovertemplate='<b>%{label}</b><br>%{value} decisions<br>%{percent}<extra></extra>'
+        )])
+        
+        fig2.update_layout(
+            title=dict(
+                text='Risk Distribution',
+                font=dict(color='#FAFAFA', size=18),
+                x=0.5,
+                xanchor='center'
+            ),
+            annotations=[dict(
+                text=f'{len(recent_decisions)}',
+                x=0.5, y=0.5,
+                font=dict(size=32, color='#00FF00'),
+                showarrow=False
+            )],
+            paper_bgcolor='#1A1D24',
+            plot_bgcolor='#1A1D24',
+            showlegend=True,
+            legend=dict(font=dict(color='#FAFAFA')),
+            height=400
+        )
+        
+        st.plotly_chart(fig2, use_container_width=True)
+
+    
+    # Recent Optimization Runs
+    st.markdown("### 📋 RECENT OPTIMIZATION RUNS")
+    
+    all_runs = get_recent_runs(selected_store_id, limit=10)
     
     if all_runs:
-        # Prepare data
-        run_dates = [run.started_at.strftime('%Y-%m-%d %H:%M') for run in reversed(all_runs)]
-        products_analyzed = [run.products_analyzed for run in reversed(all_runs)]
-        products_updated = [run.products_updated for run in reversed(all_runs)]
-        competitors_found = [run.competitors_found for run in reversed(all_runs)]
-        
-        # Chart 1: Products Analyzed vs Updated
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            fig1 = go.Figure()
-            fig1.add_trace(go.Scatter(
-                x=run_dates, y=products_analyzed,
-                name='Analyzed', mode='lines+markers',
-                line=dict(color='#667eea', width=2)
-            ))
-            fig1.add_trace(go.Scatter(
-                x=run_dates, y=products_updated,
-                name='Updated', mode='lines+markers',
-                line=dict(color='#28a745', width=2)
-            ))
-            fig1.update_layout(
-                title="Products Analyzed vs Updated",
-                xaxis_title="Date",
-                yaxis_title="Count",
-                height=300
-            )
-            st.plotly_chart(fig1, use_container_width=True)
-        
-        with col2:
-            fig2 = go.Figure()
-            fig2.add_trace(go.Bar(
-                x=run_dates, y=competitors_found,
-                marker_color='#764ba2'
-            ))
-            fig2.update_layout(
-                title="Competitors Found Per Run",
-                xaxis_title="Date",
-                yaxis_title="Count",
-                height=300
-            )
-            st.plotly_chart(fig2, use_container_width=True)
-        
-        # Recent runs table
-        st.subheader("📋 Recent Optimization Runs")
-        
         runs_data = []
-        for run in all_runs[:10]:
+        for run in all_runs:
             duration = run.duration_seconds if run.duration_seconds else 0
             runs_data.append({
                 'Date': run.started_at.strftime('%Y-%m-%d %H:%M'),
@@ -595,159 +973,67 @@ with tab2:
                 'Duration': f"{duration}s"
             })
         
-        if runs_data:
-            df = pd.DataFrame(runs_data)
-            st.dataframe(df, use_container_width=True, hide_index=True)
+        df = pd.DataFrame(runs_data)
+        
+        # Style the dataframe
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True,
+            height=400
+        )
     else:
-        st.info("No optimization runs yet. Click 'Run Now' to start!")
+        st.info("No optimization runs yet. Click 'RUN NOW' to start!")
+
 
 # ============================================
-# TAB 3: PRICING DECISIONS
+# TAB 3: ACTIVITY LOGS
 # ============================================
 
 with tab3:
-    st.subheader("🔍 Pricing Decisions History")
+    st.markdown("### 📜 ACTIVITY LOGS")
     
-    if recent_decisions:
-        decisions_data = []
-        for decision in recent_decisions[:20]:
-            decisions_data.append({
-                'Date': decision.decided_at.strftime('%Y-%m-%d %H:%M'),
-                'Product ID': decision.product_id,
-                'Old Price': f"{decision.old_price:.2f} SAR",
-                'Suggested': f"{decision.suggested_price:.2f} SAR",
-                'Change': f"{(decision.suggested_price - decision.old_price):+.2f} SAR",
-                'Strategy': decision.strategy_used or 'N/A',
-                'Risk': decision.risk_level or 'N/A',
-                'Action': decision.action_taken.title(),
-                'Margin': f"{decision.profit_margin_percentage:.1f}%" if decision.profit_margin_percentage else 'N/A'
-            })
-        
-        df = pd.DataFrame(decisions_data)
-        st.dataframe(df, use_container_width=True, hide_index=True)
-        
-        # Decision breakdown
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            updated = len([d for d in recent_decisions if d.action_taken == 'updated'])
-            st.metric("✅ Updated", updated)
-        
-        with col2:
-            skipped = len([d for d in recent_decisions if d.action_taken == 'skipped'])
-            st.metric("⏭️ Skipped", skipped)
-        
-        with col3:
-            pending = len([d for d in recent_decisions if d.action_taken == 'pending'])
-            st.metric("⏳ Pending", pending)
-    else:
-        st.info("No pricing decisions yet.")
-
-# ============================================
-# TAB 4: ACTIVITY LOGS
-# ============================================
-
-with tab4:
-    st.subheader("📜 Activity Logs")
+    from database.models import ActivityLog
     
-    activity_logs = get_recent_activity(selected_store_id, limit=50)
+    with get_db() as db:
+        activity_logs = db.query(ActivityLog).filter(
+            ActivityLog.store_id == selected_store_id
+        ).order_by(desc(ActivityLog.created_at)).limit(50).all()
     
     if activity_logs:
         for log in activity_logs:
             # Color code by activity type
             if 'error' in log.activity_type.lower() or 'failed' in log.activity_type.lower():
                 icon = "🔴"
-                color = "#f8d7da"
-            elif 'success' in log.activity_type.lower() or 'completed' in log.activity_type.lower():
+                border_color = "#FF4B4B"
+            elif 'success' in log.activity_type.lower() or 'completed' in log.activity_type.lower() or 'approval' in log.activity_type.lower():
                 icon = "🟢"
-                color = "#d4edda"
+                border_color = "#00FF00"
             elif 'warning' in log.activity_type.lower():
                 icon = "🟡"
-                color = "#fff3cd"
+                border_color = "#FFC107"
             else:
                 icon = "🔵"
-                color = "#d1ecf1"
+                border_color = "#2D3139"
             
-            with st.container():
-                st.markdown(f"""
-                <div style="background: {color}; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem;">
-                    <strong>{icon} {log.activity_type.replace('_', ' ').title()}</strong><br>
-                    <small>{log.created_at.strftime('%Y-%m-%d %H:%M:%S')}</small><br>
+            st.markdown(f"""
+            <div style="background: #1A1D24; border-left: 4px solid {border_color}; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <div style="color: #FAFAFA; font-weight: 600;">
+                        {icon} {log.activity_type.replace('_', ' ').title()}
+                    </div>
+                    <div style="color: #FAFAFA; opacity: 0.6; font-size: 0.85rem;">
+                        {log.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+                    </div>
+                </div>
+                <div style="color: #FAFAFA; opacity: 0.8;">
                     {log.description}
                 </div>
-                """, unsafe_allow_html=True)
+            </div>
+            """, unsafe_allow_html=True)
     else:
         st.info("No activity logs yet.")
 
-# ============================================
-# TAB 5: LIVE CELERY TASKS
-# ============================================
-
-with tab5:
-    st.subheader("🔴 Live Background Tasks")
-    
-    st.markdown("""
-    <div class="log-viewer">
-        <div class="log-entry log-info">📡 Connecting to Celery...</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    try:
-        # Get active tasks
-        inspect = celery_app.control.inspect()
-        active_tasks = inspect.active()
-        scheduled_tasks = inspect.scheduled()
-        
-        if active_tasks:
-            st.markdown("### 🔄 Active Tasks")
-            for worker, tasks in active_tasks.items():
-                st.markdown(f"**Worker:** `{worker}`")
-                for task in tasks:
-                    with st.expander(f"📋 {task['name']}", expanded=True):
-                        st.json({
-                            'Task ID': task['id'],
-                            'Name': task['name'],
-                            'Args': task['args'],
-                            'Started': task.get('time_start', 'N/A')
-                        })
-        else:
-            st.info("No active tasks at the moment.")
-        
-        if scheduled_tasks:
-            st.markdown("### ⏰ Scheduled Tasks")
-            for worker, tasks in scheduled_tasks.items():
-                st.markdown(f"**Worker:** `{worker}`")
-                for task in tasks:
-                    st.markdown(f"- {task['request']['name']} (ETA: {task['eta']})")
-        
-        # Recent completed tasks from database
-        st.markdown("### ✅ Recent Completed Tasks")
-        recent_runs_all = get_recent_runs(selected_store_id, limit=10)
-        
-        for run in recent_runs_all:
-            status_icon = "✅" if run.status == 'completed' else "❌" if run.status == 'failed' else "⏳"
-            
-            with st.expander(f"{status_icon} {run.run_type.title()} - {run.started_at.strftime('%Y-%m-%d %H:%M')}"):
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.metric("Products Analyzed", run.products_analyzed)
-                    st.metric("Products Updated", run.products_updated)
-                
-                with col2:
-                    st.metric("Products Skipped", run.products_skipped)
-                    st.metric("Competitors Found", run.competitors_found)
-                
-                with col3:
-                    st.metric("Duration", f"{run.duration_seconds or 0}s")
-                    st.metric("Status", run.status.title())
-                
-                if run.error_message:
-                    st.error(f"Error: {run.error_message}")
-        
-    except Exception as e:
-        st.error(f"❌ Could not connect to Celery: {str(e)}")
-        st.info("Make sure Celery worker is running: `celery -A scheduler.celery_app worker`")
 
 # ============================================
 # FOOTER
@@ -755,9 +1041,9 @@ with tab5:
 
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #666; padding: 1rem;">
-    🛍️ <strong>Salla Price Optimizer</strong> | Professional SaaS Dashboard<br>
-    <small>Multi-Tenant Edition | Real-time AI-Powered Pricing</small>
+<div style="text-align: center; color: #FAFAFA; opacity: 0.5; padding: 1rem;">
+    🛍️ <strong style="color: #00FF00;">SALLA PRICE OPTIMIZER</strong> | Premium Multi-Tenant Platform<br>
+    <small>AI-Powered Dynamic Pricing | Real-Time Market Intelligence</small>
 </div>
 """, unsafe_allow_html=True)
 

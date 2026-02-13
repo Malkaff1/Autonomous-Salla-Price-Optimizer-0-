@@ -237,49 +237,28 @@ def check_and_optimize_stores():
 @celery_app.task(name='scheduler.tasks.refresh_expired_tokens')
 def refresh_expired_tokens():
     """
-    Refresh expired OAuth tokens for all stores
-    Runs daily at 2 AM via Celery Beat
+    Proactively refresh expired OAuth tokens for all stores
+    Runs every 12 hours via Celery Beat
+    Checks for tokens expiring within 24 hours and refreshes them
     """
-    logger.info("🔄 Refreshing expired tokens")
+    logger.info("🔄 Starting proactive token refresh")
     
     try:
         from optimizer.token_manager import TokenManager
         token_manager = TokenManager()
         
-        with get_db() as db:
-            # Get stores with expired or soon-to-expire tokens
-            threshold = datetime.utcnow() + timedelta(hours=24)
-            stores = db.query(Store).filter(
-                Store.is_active == True,
-                Store.token_expires_at < threshold
-            ).all()
-            
-            if not stores:
-                logger.info("No tokens need refreshing")
-                return {"status": "success", "tokens_refreshed": 0}
-            
-            logger.info(f"Found {len(stores)} stores with expiring tokens")
-            
-            refreshed = 0
-            failed = 0
-            
-            for store in stores:
-                success = token_manager.refresh_store_token(store.store_id)
-                if success:
-                    refreshed += 1
-                    logger.info(f"✅ Refreshed token for store {store.store_id}")
-                else:
-                    failed += 1
-                    logger.error(f"❌ Failed to refresh token for store {store.store_id}")
-            
-            return {
-                "status": "success",
-                "tokens_refreshed": refreshed,
-                "tokens_failed": failed
-            }
+        # Use the enhanced refresh method
+        result = token_manager.refresh_all_expired_tokens()
+        
+        logger.info(f"✅ Token refresh complete: {result}")
+        
+        return {
+            "status": "success",
+            **result
+        }
             
     except Exception as e:
-        logger.error(f"Error in refresh_expired_tokens: {str(e)}")
+        logger.error(f"❌ Error in refresh_expired_tokens: {str(e)}")
         return {"status": "error", "error": str(e)}
 
 
